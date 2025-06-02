@@ -1,0 +1,120 @@
+create table employee (
+	id int primary key,
+	name varchar(50) not null,
+	age int,
+	department varchar(30),
+	salary int
+);
+
+Insert into employee 
+(id,name,age,department,salary) 
+values
+(1,'abinesh',26,'ks',100000),
+(2,'abhishek',25,'ks',80000),
+(3,'lakshmi',24,'dtv',60000),
+(4,'pavan',25,'dtv',80000),
+(5,'arun',40,'ion',250000);
+
+alter table "employee" rename to "employees";
+
+update employees set salary = 110000 where id = 1;
+
+delete from employees where id = 5;
+
+select * from employees;
+
+create table projects 
+(
+	project_id int primary key,
+	project_name varchar(50) not null,
+	assigned_to int,
+	foreign key (assigned_to) references employees(id),
+	status varchar(20)
+);
+
+insert into projects 
+(project_id,project_name,assigned_to,status)
+values 
+(1111,'internal ucm',2,'Completed'),
+(1112,'TN',1,'Active'),
+(1113,'Digital TV Systems',3,'On Hold'),
+(1114,'Agribyte',null,'On Hold'),
+(1115,'AAZ',null,'On Hold');
+
+select * from projects;
+
+select e.name,p.project_name,p.status 
+from employees e join projects p on p.assigned_to = e.id 
+where p.status IN ('Active','Completed');
+
+select e.name, p.project_name, p.status
+from employees e left join projects p on e.id = p.assigned_to
+order by e.name;
+
+select e.name, count (*) as project_count 
+from employees e join projects p on e.id=p.assigned_to
+group by e.name;
+
+select e.name, count(*) as project_count
+from employees e join projects p on e.id=p.assigned_to
+group by e.name 
+having count(*) > 1;
+
+select * 
+from employees
+where id In (select assigned_to from projects where status = 'Active');
+
+
+select id,name,age,department,
+case 
+	when(salary > 100000)then'High'
+	when(salary<70000)then'Low'
+	else 'Medium'
+end as salary_category
+from employees;
+
+create view salary_categories as
+select id,name,age,department,
+case 
+	when (salary>100000) then 'High'
+	when (salary<70000) then 'Low'
+	else 'Medium'
+end as salary_category
+from employees;
+
+select * from salary_categories where salary_category = 'High';
+
+drop view salary_categories;
+
+create table departments (
+	dep_id int primary key,
+	dep_name varchar(10) not null
+);
+
+
+Insert into departments (dep_id,dep_name)
+values
+(1,'KS'),
+(2,'DTV'),
+(3,'ION');
+
+select * from departments;
+
+alter table employees 
+drop column department;
+
+select * from employees;
+
+alter table employees
+add column department int,
+add constraint fk_department
+foreign key (department) references departments(dep_id);
+
+update employees set department = 2 where id = 4;
+
+select e.name, d.dep_name, p.project_name, p.status
+from employees e 
+left join projects p on e.id=p.assigned_to
+join departments d on e.department=d.dep_id;
+
+
